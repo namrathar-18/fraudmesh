@@ -45,6 +45,9 @@ export class GraphService {
     const b = this.ensure(txn.payee)
     a.txnCount++
     b.txnCount++
+    // Non-P2P payees are merchants — allowlist them permanently so their high
+    // fan-in is never mistaken for a mule collector (survives graph pruning).
+    if (txn.channel !== 'P2P') this.merchants.add(txn.payee)
     const edges = this.adj.get(txn.payer)!
     const e = edges.get(txn.payee) ?? { count: 0 }
     e.count++
@@ -56,13 +59,21 @@ export class GraphService {
     this.prune()
   }
 
+  private hasRecurringEdge(id: string): boolean {
+    for (const e of this.adj.get(id)?.values() ?? []) if (e.count >= 2) return true
+    for (const [, m] of this.adj) { const e = m.get(id); if (e && e.count >= 2) return true }
+    return false
+  }
+
   private prune() {
-    if (this.nodes.size <= 140) return
-    // Drop the least-active non-ring nodes to keep the view legible.
+    if (this.nodes.size <= 150) return
+    // Drop the least-active nodes, but never a ring member or a node with a
+    // recurring edge — that would destroy the mule structure before it can be
+    // detected as a community.
     const victims = [...this.nodes.values()]
-      .filter((n) => n.ringId === null)
+      .filter((n) => n.ringId === null && !this.hasRecurringEdge(n.id))
       .sort((x, y) => x.txnCount - y.txnCount)
-      .slice(0, this.nodes.size - 140)
+      .slice(0, this.nodes.size - 150)
     for (const v of victims) {
       this.nodes.delete(v.id)
       this.adj.delete(v.id)
@@ -77,104 +88,48 @@ export class GraphService {
     return [...out]
   }
 
-  // Neighbours connected by a RECURRING edge (combined count >= 2). One-off
-  // legitimate payments (weight 1) are ignored so merchant hubs don't merge the
-  // whole graph into a single community — only repeated flows (mule funnels,
-  // laundering hops) survive, which is exactly the ring structure we want.
-  private strongNeighbors(id: string): string[] {
-    if (this.merchants.has(id)) return []
-    const out = new Set<string>()
-    for (const [t, e] of this.adj.get(id) ?? []) {
-      if (this.merchants.has(t)) continue
-      const back = this.adj.get(t)?.get(id)?.count ?? 0
-      if (e.count + back >= 2) out.add(t)
-    }
-    for (const [src, m] of this.adj) {
-      if (this.merchants.has(src)) continue
-      const fwd = m.get(id)?.count ?? 0
-      const back = this.adj.get(id)?.get(src)?.count ?? 0
-      if (fwd + back >= 2) out.add(src)
-    }
-    return [...out]
-  }
 
-  private outDegree(id: string): number {
-    return this.adj.get(id)?.size ?? 0
-  }
-
-  private recomputeMerchants() {
-    this.merchants.clear()
-    for (const id of this.nodes.keys()) {
-      if (this.outDegree(id) === 0 && this.inDegree(id) >= 5) this.merchants.add(id)
-    }
-  }
-
-  private inDegree(id: string): number {
-    let c = 0
-    for (const [src, m] of this.adj) if (src !== id && m.has(id)) c++
-    return c
-  }
-
-  /** Recompute communities + mule scores. Runs off the hot path. */
+  /** Recompute rings + mule scores. Runs off the hot path. */
   analyze() {
     const ids = [...this.nodes.keys()]
     if (ids.length === 0) return
-    this.recomputeMerchants()
-
-    // --- Label propagation over the recurring-edge subgraph ---
-    const label = new Map<string, string>()
-    ids.forEach((id) => label.set(id, id))
-    const strong = new Map(ids.map((id) => [id, this.strongNeighbors(id)]))
-    for (let iter = 0; iter < 8; iter++) {
-      let changed = false
-      for (const id of ids) {
-        const counts = new Map<string, number>()
-        for (const nb of strong.get(id) ?? []) {
-          const l = label.get(nb)!
-          const w = (this.adj.get(id)?.get(nb)?.count ?? 0) + (this.adj.get(nb)?.get(id)?.count ?? 0) + 1
-          counts.set(l, (counts.get(l) ?? 0) + w)
-        }
-        if (counts.size === 0) continue
-        let best = label.get(id)!
-        let bestC = -1
-        for (const [l, c] of counts) if (c > bestC) { bestC = c; best = l }
-        if (best !== label.get(id)) { label.set(id, best); changed = true }
-      }
-      if (!changed) break
-    }
-
-    // Group into communities.
-    const groups = new Map<string, string[]>()
-    for (const id of ids) {
-      const l = label.get(id)!
-      const g = groups.get(l) ?? []
-      g.push(id)
-      groups.set(l, g)
-    }
 
     // --- PageRank for mule scoring ---
     const pr = this.pageRank(ids)
     const maxPr = Math.max(...pr.values(), 1e-9)
 
-    // Reset ring assignments, then flag suspicious communities. A ring is a
-    // SMALL, tightly-connected community that either concentrates fan-in on a
-    // collector or shares device fingerprints — not the legit money-flow
-    // backbone, which is large and loosely connected.
+    // Reset ring assignments.
     for (const n of this.nodes.values()) { n.ringId = null; n.flagged = false }
     let assigned = 0
-    for (const rawGroup of groups.values()) {
-      const g = rawGroup.filter((id) => !this.merchants.has(id))
-      if (g.length < 3 || g.length > 25) continue
-      const density = this.internalDensity(g)
-      const shared = this.sharesDevices(g)
-      const hasCollector = g.some((id) => this.inDegree(id) >= 3)
-      if ((density >= 0.4 && hasCollector) || (shared && g.length <= 15)) {
-        const ringId = assigned++
-        for (const id of g) {
-          const n = this.nodes.get(id)!
-          n.ringId = ringId
-          n.flagged = true
-        }
+
+    // Mule-collector detection: a non-merchant account that receives from many
+    // distinct non-merchant accounts is a collector; it and its senders form a
+    // ring. Non-merchant in-edges are P2P (merchant payments target allowlisted
+    // merchant nodes), so a high distinct-sender count is a strong mule signal
+    // — robust where sparse edge recurrence defeats pure community detection.
+    const inNbrs = new Map<string, Set<string>>()
+    for (const [src, m] of this.adj) {
+      if (this.merchants.has(src)) continue
+      for (const t of m.keys()) {
+        if (this.merchants.has(t)) continue
+        const set = inNbrs.get(t) ?? new Set<string>()
+        set.add(src)
+        inNbrs.set(t, set)
+      }
+    }
+    for (const [collector, senders] of inNbrs) {
+      const node = this.nodes.get(collector)
+      if (!node || node.ringId !== null) continue
+      // Require repeated fan-in: a mule collector receives from the same accounts
+      // again and again (edge count >= 2), unlike a popular payee with one-off
+      // incoming payments. This cleanly separates rings from legitimate hubs.
+      let recurring = 0
+      for (const s of senders) if ((this.adj.get(s)?.get(collector)?.count ?? 0) >= 2) recurring++
+      if (recurring < 3) continue
+      const ringId = assigned++
+      for (const id of [collector, ...senders]) {
+        const n = this.nodes.get(id)
+        if (n && n.ringId === null) { n.ringId = ringId; n.flagged = true }
       }
     }
     this.ringCount = assigned
@@ -185,30 +140,6 @@ export class GraphService {
       const base = pr.get(id)! / maxPr
       n.muleScore = Math.round((n.ringId !== null ? 0.55 + 0.45 * base : base * 0.4) * 100) / 100
     }
-  }
-
-  private internalDensity(group: string[]): number {
-    const inside = new Set(group)
-    let internal = 0
-    let external = 0
-    for (const id of group) {
-      for (const t of this.adj.get(id)?.keys() ?? []) {
-        if (inside.has(t)) internal++
-        else external++
-      }
-    }
-    const total = internal + external
-    return total ? internal / total : 0
-  }
-
-  private sharesDevices(group: string[]): boolean {
-    const inside = new Set(group)
-    for (const accts of this.deviceAccounts.values()) {
-      let n = 0
-      for (const a of accts) if (inside.has(a)) n++
-      if (n >= 2 && accts.size >= 2) return true
-    }
-    return false
   }
 
   private pageRank(ids: string[], d = 0.85, iters = 20): Map<string, number> {

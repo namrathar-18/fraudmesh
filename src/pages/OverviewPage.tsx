@@ -50,7 +50,7 @@ export function OverviewPage() {
       )}
       <div className="grid grid-4">
         <Kpi label="Fraud Prevented" value={fmtINR(state.saved)} foot={`${s.truePositives} fraudulent txns stopped`} tone="good" spark={savedSeries} color="#34d399" />
-        <Kpi label="Transactions Scored" value={s.processed.toLocaleString('en-IN')} foot={`${s.tps} tps · ${s.degradedCount} degraded`} spark={tpsSeries} color="#22d3ee" />
+        <Kpi label="Transactions Scored" value={s.processed.toLocaleString('en-IN')} foot={`${s.tps} tps · ${s.degradedCount} degraded`} spark={tpsSeries} color="#a855f7" />
         <Kpi label="p99 Latency" value={`${s.p99.toFixed(0)}ms`} foot={`SLO < 100ms · p50 ${s.p50.toFixed(0)}ms`} tone={s.p99 < 100 ? 'good' : 'bad'} />
         <Kpi label="Active Fraud Rings" value={String(s.ringsDetected)} foot={`${s.blocked} blocked · ${s.reviewed} in review`} tone={s.ringsDetected > 0 ? 'warn' : undefined} />
       </div>
@@ -72,7 +72,7 @@ export function OverviewPage() {
             </div>
             <div style={{ marginTop: 18 }}>
               <div className="section-title">Throughput (last 60s)</div>
-              <TrendLine values={tpsSeries.length > 1 ? tpsSeries : [0, 0]} color="#22d3ee" height={70} />
+              <TrendLine values={tpsSeries.length > 1 ? tpsSeries : [0, 0]} color="#a855f7" height={70} />
             </div>
           </div>
         </div>

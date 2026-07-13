@@ -51,13 +51,22 @@ export class FeatureStore {
     const median = hist.length ? medianOf(hist) : txn.amount
     const ratio = median > 0 ? txn.amount / median : 1
 
+    // Fan-in is only a fraud signal for P2P transfers (mule collectors). For
+    // merchant channels a high distinct-payer count is normal and allowlisted,
+    // so it must not contribute risk.
     const payeeEvents = this.prune(this.byPayee.get(txn.payee) ?? [], now, DAY)
-    const payeeInDegree = new Set(payeeEvents.map((e) => e.payer).concat(txn.payer)).size
+    const payeeInDegree = txn.channel === 'P2P'
+      ? new Set(payeeEvents.map((e) => e.payer).concat(txn.payer)).size
+      : 1
 
     const seen = this.firstSeen.get(txn.payer) ?? now
     const ageHours = Math.max(0, (now - seen) / HOUR)
 
+    // "New device" is only a signal once we've actually seen the account
+    // before — a brand-new account with no history isn't inherently a new
+    // device, and treating it as one would flood the queue with false positives.
     const knownDevice = payerEvents.some((e) => e.device === txn.deviceId)
+    const newDevice = payerEvents.length > 0 && !knownDevice
     const hour = new Date(now).getHours()
     const enrich = this.enrichment.get(txn.payer) ?? { muleScore: 0, ringSize: 0 }
     const velocity5m = last5m.reduce((s, e) => s + e.amount, 0) + txn.amount
@@ -68,7 +77,7 @@ export class FeatureStore {
       amountToMedianRatio: round2(ratio),
       payeeInDegree,
       payerAgeHours: Math.round(ageHours),
-      newDevice: !knownDevice,
+      newDevice,
       nightHour: hour >= 0 && hour <= 5,
       ringMuleScore: round2(enrich.muleScore),
       ringSize: enrich.ringSize,

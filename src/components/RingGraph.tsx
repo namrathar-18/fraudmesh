@@ -123,7 +123,7 @@ export function RingGraph({
           ctx.lineWidth = 1.4; ctx.strokeStyle = '#fff6'; ctx.stroke()
         } else {
           ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, Math.PI * 2)
-          ctx.fillStyle = n.muleScore > 0.4 ? '#7b8db0' : '#39496b'
+          ctx.fillStyle = n.muleScore > 0.4 ? '#8c81a6' : '#3a3350'
           ctx.fill()
         }
       }
@@ -148,8 +148,8 @@ export function RingGraph({
         <div className="graph-wrap">
           <canvas ref={canvasRef} style={{ height: 340 }} />
           <div className="graph-legend">
-            <span className="row"><span className="dot" style={{ background: '#39496b' }} /> normal</span>
-            <span className="row"><span className="dot" style={{ background: '#7b8db0' }} /> elevated mule score</span>
+            <span className="row"><span className="dot" style={{ background: '#3a3350' }} /> normal</span>
+            <span className="row"><span className="dot" style={{ background: '#8c81a6' }} /> elevated mule score</span>
             <span className="row"><span className="dot" style={{ background: '#f87171' }} /> confirmed ring</span>
           </div>
         </div>

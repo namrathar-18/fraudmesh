@@ -40,7 +40,7 @@ export function DriftMonitor({ drift }: { drift: DriftPoint[] }) {
     if (drift.length > 1) {
       ctx.beginPath()
       drift.forEach((d, i) => (i ? ctx.lineTo(x(i), y(d.psi)) : ctx.moveTo(x(i), y(d.psi))))
-      ctx.strokeStyle = alerting ? '#fbbf24' : '#6366f1'
+      ctx.strokeStyle = alerting ? '#fbbf24' : '#ec4899'
       ctx.lineWidth = 1.8; ctx.stroke()
     }
   }, [drift, alerting])

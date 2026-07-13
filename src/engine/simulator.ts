@@ -55,8 +55,9 @@ export class Simulator {
   }
 
   private bootstrapAccounts() {
-    // Legit population.
-    for (let i = 0; i < 60; i++) this.accounts.push(this.newAccount(false))
+    // Large legit population so per-account velocity stays realistic (real UPI
+    // has millions of accounts; a tiny pool would make every account look busy).
+    for (let i = 0; i < 800; i++) this.accounts.push(this.newAccount(false))
     // A mule ring: several accounts that funnel money to one collector.
     for (let i = 0; i < 7; i++) {
       const m = this.newAccount(true)

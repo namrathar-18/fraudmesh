@@ -1,6 +1,17 @@
 # FraudMesh — Software Requirements Specification (SRS)
 ### One-Week MVP · IEEE-830-aligned
 
+> **Live demo:** https://namrathar-18.github.io/fraudmesh/
+>
+> **Sign in (role-based access control):**
+>
+> | Role | Email | Password |
+> |---|---|---|
+> | Fraud Analyst | `analyst@fraudmesh.io` | `Analyst@2025` |
+> | Platform Admin | `admin@fraudmesh.io` | `Admin@2025` |
+> | ML Engineer | `ml@fraudmesh.io` | `MLOps@2025` |
+> | Compliance Officer | `compliance@fraudmesh.io` | `Comply@2025` |
+
 | Field | Value |
 |---|---|
 | **Product** | FraudMesh — Real-Time Payment Fraud Detection Platform |

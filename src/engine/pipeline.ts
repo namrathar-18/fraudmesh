@@ -95,6 +95,23 @@ export class Pipeline {
 
   constructor(seed = 42) {
     this.sim = new Simulator(seed)
+    this.warmup()
+  }
+
+  // Pre-warm the feature store and graph with backdated history so accounts
+  // have established devices and medians before live scoring begins. Without
+  // this, a cold store makes every account look brand-new and floods the queue
+  // with false positives.
+  private warmup() {
+    const now = Date.now()
+    for (let i = 0; i < 260; i++) {
+      const txn = this.sim.emit()
+      // Backdate 6 min–20 h so history populates the 24h windows but not the 5m one.
+      txn.ts = now - Math.floor(Math.random() * 20 * 3600000) - 6 * 60000
+      this.store.update(txn)
+      this.graph.ingest(txn)
+    }
+    this.graph.analyze()
   }
 
   private simulateLatency(): number {
@@ -141,7 +158,7 @@ export class Pipeline {
       score = Math.max(rules.score, 0.45) // conservative: never silently allow
     } else {
       score = Math.min(1, 0.6 * modelScore + 0.5 * rules.score)
-      if (anomaly > 0.6 && score < 0.45) score = 0.45 // anomaly safety net
+      if (anomaly > 0.82 && score < 0.45) score = 0.45 // anomaly safety net (rare)
     }
     const decision = this.decide(score)
 
@@ -342,6 +359,7 @@ export class Pipeline {
     this.windowCount = 0
     this.tps = 0
     this.windowStart = Date.now()
+    this.warmup()
   }
 }
 

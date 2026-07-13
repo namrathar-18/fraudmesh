@@ -2,7 +2,7 @@
 
 export function TrendLine({
   values,
-  color = '#22d3ee',
+  color = '#a855f7',
   height = 60,
   fill = true,
 }: {

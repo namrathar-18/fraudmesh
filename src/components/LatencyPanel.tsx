@@ -46,8 +46,8 @@ export function LatencyPanel({ latency, stats }: { latency: LatencySample[]; sta
     if (latency.length > 1) {
       // area
       const grad = ctx.createLinearGradient(0, pad.t, 0, h)
-      grad.addColorStop(0, 'rgba(34,211,238,0.28)')
-      grad.addColorStop(1, 'rgba(34,211,238,0)')
+      grad.addColorStop(0, 'rgba(168,85,247,0.28)')
+      grad.addColorStop(1, 'rgba(168,85,247,0)')
       ctx.beginPath()
       ctx.moveTo(x(0), y(latency[0].ms))
       latency.forEach((l, i) => ctx.lineTo(x(i), y(l.ms)))
@@ -59,7 +59,7 @@ export function LatencyPanel({ latency, stats }: { latency: LatencySample[]; sta
       // line
       ctx.beginPath()
       latency.forEach((l, i) => (i ? ctx.lineTo(x(i), y(l.ms)) : ctx.moveTo(x(i), y(l.ms))))
-      ctx.strokeStyle = '#22d3ee'
+      ctx.strokeStyle = '#a855f7'
       ctx.lineWidth = 1.6
       ctx.stroke()
       // spikes above budget

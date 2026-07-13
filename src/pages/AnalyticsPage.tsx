@@ -21,7 +21,7 @@ export function AnalyticsPage() {
     { label: 'True positives (fraud caught)', value: s.truePositives, color: '#34d399' },
     { label: 'False positives (good blocked)', value: s.falsePositives, color: '#fbbf24' },
     { label: 'False negatives (fraud missed)', value: s.falseNegatives, color: '#f87171' },
-    { label: 'True negatives (clean allowed)', value: s.trueNegatives, color: '#3a4a6a' },
+    { label: 'True negatives (clean allowed)', value: s.trueNegatives, color: '#3a3350' },
   ]
 
   return (
@@ -33,8 +33,8 @@ export function AnalyticsPage() {
 
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <Chart title="Fraud Prevented (₹)" sub="cumulative savings"><TrendLine values={ensure(savedSeries)} color="#34d399" height={90} /></Chart>
-        <Chart title="Throughput (TPS)" sub="rolling per-second"><TrendLine values={ensure(tpsSeries)} color="#22d3ee" height={90} /></Chart>
-        <Chart title="p99 Latency (ms)" sub="against 100ms SLO"><TrendLine values={ensure(p99Series)} color="#6366f1" height={90} /></Chart>
+        <Chart title="Throughput (TPS)" sub="rolling per-second"><TrendLine values={ensure(tpsSeries)} color="#a855f7" height={90} /></Chart>
+        <Chart title="p99 Latency (ms)" sub="against 100ms SLO"><TrendLine values={ensure(p99Series)} color="#ec4899" height={90} /></Chart>
       </div>
 
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>

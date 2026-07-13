@@ -17,13 +17,13 @@ export const FEATURES: FeatureDef[] = [
   { key: 'amountRatio', label: 'Amount vs user median', center: 1.1, scale: 2.2, extract: (f) => f.amountToMedianRatio },
   { key: 'newDevice', label: 'New / unseen device', center: 0.12, scale: 0.33, extract: (f) => (f.newDevice ? 1 : 0) },
   { key: 'distinctDevices', label: 'Distinct devices (24h)', center: 1.3, scale: 1.1, extract: (f) => f.distinctDevices24h },
-  { key: 'txnCount5m', label: 'Txns in last 5 min', center: 1.2, scale: 1.8, extract: (f) => f.txnCount5m },
+  { key: 'txnCount5m', label: 'Txns in last 5 min', center: 2.5, scale: 3, extract: (f) => f.txnCount5m },
   { key: 'payeeInDegree', label: 'Payee fan-in degree', center: 1.6, scale: 2.4, extract: (f) => f.payeeInDegree },
   { key: 'muleScore', label: 'Graph mule proximity', center: 0.08, scale: 0.22, extract: (f) => f.ringMuleScore },
   { key: 'ringSize', label: 'Fraud-ring size', center: 0.4, scale: 1.6, extract: (f) => f.ringSize },
   { key: 'nightHour', label: 'Odd-hour activity', center: 0.22, scale: 0.41, extract: (f) => (f.nightHour ? 1 : 0) },
   { key: 'payerAge', label: 'Account age (hours)', center: 240, scale: 260, extract: (f) => f.payerAgeHours },
-  { key: 'velocity', label: 'Amount velocity (5m)', center: 900, scale: 1400, extract: (f) => f.velocityAmount5m },
+  { key: 'velocity', label: 'Amount velocity (5m)', center: 2500, scale: 3500, extract: (f) => f.velocityAmount5m },
 ]
 
 export interface Model {
@@ -34,10 +34,12 @@ export interface Model {
 
 // Champion model — coefficients tuned to represent a trained LightGBM/logistic
 // scorer. Positive weight => feature pushes toward fraud.
+// Order: amountRatio, newDevice, distinctDevices, txnCount5m, payeeInDegree,
+// muleScore, ringSize, nightHour, payerAge, velocity.
 export const CHAMPION: Model = {
   version: 'lgbm-v1',
-  bias: -3.1,
-  weights: [1.35, 1.4, 0.85, 1.1, 1.2, 1.9, 0.6, 0.55, -0.7, 0.65],
+  bias: -4.6,
+  weights: [1.6, 1.55, 0.8, 0.5, 1.3, 2.1, 0.6, 0.28, -0.3, 0.15],
 }
 
 const sigmoid = (x: number) => 1 / (1 + Math.exp(-x))
