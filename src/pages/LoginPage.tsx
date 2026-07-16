@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { DIRECTORY, ROLE_LABELS, type Role } from '../auth/auth'
 import { roleHome } from '../app/nav'
-import { Shield, Lock, User, Building, Check } from '../components/icons'
+import { GoogleButton } from '../auth/GoogleButton'
+import { Shield, Lock, User, Check } from '../components/icons'
 
 const ROLE_ORDER: Role[] = ['analyst', 'admin', 'ml_engineer', 'compliance']
 
@@ -68,7 +69,7 @@ export function LoginPage() {
               Access the fraud operations console
             </div>
 
-            <button className="btn ghost sso"><Building size={16} className="" /> Continue with Company SSO</button>
+            <GoogleButton />
             <div className="divider"><span>or sign in with email</span></div>
 
             <form onSubmit={submit}>
