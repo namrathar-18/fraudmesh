@@ -10,7 +10,7 @@ export function ModelOpsPage() {
   const precision = s.truePositives + s.falsePositives ? s.truePositives / (s.truePositives + s.falsePositives || 1) : 0
 
   const importance = FEATURES
-    .map((f, i) => ({ label: f.label, value: Math.abs(CHAMPION.weights[i]), color: CHAMPION.weights[i] >= 0 ? '#a855f7' : '#34d399' }))
+    .map((f, i) => ({ label: f.label, value: Math.abs(CHAMPION.weights[i]), color: CHAMPION.weights[i] >= 0 ? '#f5b301' : '#21c07a' }))
     .sort((a, b) => b.value - a.value)
     .map((d) => ({ ...d, value: Math.round(d.value * 100) }))
 
@@ -60,8 +60,8 @@ export function ModelOpsPage() {
                     : `Challenger kept in shadow — PR-AUC ${state.retrain.newPrAuc.toFixed(2)} ≤ champion ${state.retrain.prevPrAuc.toFixed(2)}`}
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <Gauge label="Champion PR-AUC" value={state.retrain.prevPrAuc} color="#a855f7" />
-                  <Gauge label="Challenger PR-AUC" value={state.retrain.newPrAuc} color="#ec4899" />
+                  <Gauge label="Champion PR-AUC" value={state.retrain.prevPrAuc} color="#f5b301" />
+                  <Gauge label="Challenger PR-AUC" value={state.retrain.newPrAuc} color="#ff8a3d" />
                 </div>
               </>
             ) : (

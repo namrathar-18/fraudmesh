@@ -4,7 +4,7 @@ import { Network } from './icons'
 
 interface Pos { x: number; y: number; vx: number; vy: number }
 
-const RING_COLORS = ['#f87171', '#fbbf24', '#f472b6', '#fb923c', '#a78bfa']
+const RING_COLORS = ['#f0475f', '#f5960a', '#f472b6', '#fb923c', '#c98bff']
 
 export function RingGraph({
   nodes,
@@ -106,7 +106,7 @@ export function RingGraph({
         if (!s || !t) continue
         ctx.beginPath()
         ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y)
-        ctx.strokeStyle = e.suspicious ? 'rgba(248,113,113,0.5)' : 'rgba(90,104,133,0.22)'
+        ctx.strokeStyle = e.suspicious ? 'rgba(240, 71, 95,0.5)' : 'rgba(90,104,133,0.22)'
         ctx.lineWidth = e.suspicious ? 1.6 : 0.8
         ctx.stroke()
       }
@@ -150,7 +150,7 @@ export function RingGraph({
           <div className="graph-legend">
             <span className="row"><span className="dot" style={{ background: '#3a3350' }} /> normal</span>
             <span className="row"><span className="dot" style={{ background: '#8c81a6' }} /> elevated mule score</span>
-            <span className="row"><span className="dot" style={{ background: '#f87171' }} /> confirmed ring</span>
+            <span className="row"><span className="dot" style={{ background: '#f0475f' }} /> confirmed ring</span>
           </div>
         </div>
       </div>

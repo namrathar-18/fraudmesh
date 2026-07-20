@@ -129,10 +129,31 @@ export function AppShell() {
           </div>
         </header>
 
+        <div className="ticker">
+          <div className="ticker-item"><span className="tk">SYS</span> <b className="ok">OPERATIONAL</b></div>
+          <TickerStat label="TPS" value={String(state.stats.tps)} />
+          <TickerStat label="p99" value={`${state.stats.p99.toFixed(0)}ms`} tone={state.stats.p99 < 100 ? 'ok' : 'bad'} />
+          <TickerStat label="SCORED" value={state.stats.processed.toLocaleString('en-IN')} />
+          <TickerStat label="BLOCKED" value={String(state.stats.blocked)} tone="bad" />
+          <TickerStat label="RINGS" value={String(state.stats.ringsDetected)} tone={state.stats.ringsDetected > 0 ? 'warn' : undefined} />
+          <TickerStat label="SAVED" value={`₹${(state.saved / 1000).toFixed(0)}k`} tone="ok" />
+          <TickerStat label="DRIFT" value={state.stats.driftAlert ? 'ALERT' : 'STABLE'} tone={state.stats.driftAlert ? 'warn' : 'ok'} />
+          <TickerStat label="MODEL" value={state.stats.modelVersion} />
+          <div className="ticker-item ticker-clock"><span className="tk">UTC</span> <b>{new Date().toISOString().slice(11, 19)}</b></div>
+        </div>
+
         <main className="content">
           <Outlet />
         </main>
       </div>
+    </div>
+  )
+}
+
+function TickerStat({ label, value, tone }: { label: string; value: string; tone?: 'ok' | 'bad' | 'warn' }) {
+  return (
+    <div className="ticker-item">
+      <span className="tk">{label}</span> <b className={tone ?? ''}>{value}</b>
     </div>
   )
 }

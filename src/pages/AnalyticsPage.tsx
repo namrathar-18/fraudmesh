@@ -12,15 +12,15 @@ export function AnalyticsPage() {
   const p99Series = state.timeline.map((t) => t.p99)
 
   const donut = [
-    { label: 'Mule network', value: fb.mule_network ?? 0, color: '#f87171' },
-    { label: 'Account takeover', value: fb.account_takeover ?? 0, color: '#fbbf24' },
-    { label: 'Laundering', value: fb.laundering_chain ?? 0, color: '#a78bfa' },
+    { label: 'Mule network', value: fb.mule_network ?? 0, color: '#f0475f' },
+    { label: 'Account takeover', value: fb.account_takeover ?? 0, color: '#f5960a' },
+    { label: 'Laundering', value: fb.laundering_chain ?? 0, color: '#c98bff' },
   ]
 
   const confusion = [
-    { label: 'True positives (fraud caught)', value: s.truePositives, color: '#34d399' },
-    { label: 'False positives (good blocked)', value: s.falsePositives, color: '#fbbf24' },
-    { label: 'False negatives (fraud missed)', value: s.falseNegatives, color: '#f87171' },
+    { label: 'True positives (fraud caught)', value: s.truePositives, color: '#21c07a' },
+    { label: 'False positives (good blocked)', value: s.falsePositives, color: '#f5960a' },
+    { label: 'False negatives (fraud missed)', value: s.falseNegatives, color: '#f0475f' },
     { label: 'True negatives (clean allowed)', value: s.trueNegatives, color: '#3a3350' },
   ]
 
@@ -32,9 +32,9 @@ export function AnalyticsPage() {
       </div>
 
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-        <Chart title="Fraud Prevented (₹)" sub="cumulative savings"><TrendLine values={ensure(savedSeries)} color="#34d399" height={90} /></Chart>
-        <Chart title="Throughput (TPS)" sub="rolling per-second"><TrendLine values={ensure(tpsSeries)} color="#a855f7" height={90} /></Chart>
-        <Chart title="p99 Latency (ms)" sub="against 100ms SLO"><TrendLine values={ensure(p99Series)} color="#ec4899" height={90} /></Chart>
+        <Chart title="Fraud Prevented (₹)" sub="cumulative savings"><TrendLine values={ensure(savedSeries)} color="#21c07a" height={90} /></Chart>
+        <Chart title="Throughput (TPS)" sub="rolling per-second"><TrendLine values={ensure(tpsSeries)} color="#f5b301" height={90} /></Chart>
+        <Chart title="p99 Latency (ms)" sub="against 100ms SLO"><TrendLine values={ensure(p99Series)} color="#ff8a3d" height={90} /></Chart>
       </div>
 
       <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>

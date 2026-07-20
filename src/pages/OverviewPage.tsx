@@ -27,9 +27,9 @@ export function OverviewPage() {
 
   const fb = state.fraudByType
   const donut = [
-    { label: 'Mule network', value: fb.mule_network ?? 0, color: '#f87171' },
-    { label: 'Account takeover', value: fb.account_takeover ?? 0, color: '#fbbf24' },
-    { label: 'Laundering chain', value: fb.laundering_chain ?? 0, color: '#a78bfa' },
+    { label: 'Mule network', value: fb.mule_network ?? 0, color: '#f0475f' },
+    { label: 'Account takeover', value: fb.account_takeover ?? 0, color: '#f5960a' },
+    { label: 'Laundering chain', value: fb.laundering_chain ?? 0, color: '#c98bff' },
   ]
 
   const topBlocks = state.audit.filter((r) => r.decision === 'block').slice(0, 6)
@@ -49,8 +49,8 @@ export function OverviewPage() {
         </div>
       )}
       <div className="grid grid-4">
-        <Kpi label="Fraud Prevented" value={fmtINR(state.saved)} foot={`${s.truePositives} fraudulent txns stopped`} tone="good" spark={savedSeries} color="#34d399" />
-        <Kpi label="Transactions Scored" value={s.processed.toLocaleString('en-IN')} foot={`${s.tps} tps · ${s.degradedCount} degraded`} spark={tpsSeries} color="#a855f7" />
+        <Kpi label="Fraud Prevented" value={fmtINR(state.saved)} foot={`${s.truePositives} fraudulent txns stopped`} tone="good" spark={savedSeries} color="#21c07a" />
+        <Kpi label="Transactions Scored" value={s.processed.toLocaleString('en-IN')} foot={`${s.tps} tps · ${s.degradedCount} degraded`} spark={tpsSeries} color="#f5b301" />
         <Kpi label="p99 Latency" value={`${s.p99.toFixed(0)}ms`} foot={`SLO < 100ms · p50 ${s.p50.toFixed(0)}ms`} tone={s.p99 < 100 ? 'good' : 'bad'} />
         <Kpi label="Active Fraud Rings" value={String(s.ringsDetected)} foot={`${s.blocked} blocked · ${s.reviewed} in review`} tone={s.ringsDetected > 0 ? 'warn' : undefined} />
       </div>
@@ -72,7 +72,7 @@ export function OverviewPage() {
             </div>
             <div style={{ marginTop: 18 }}>
               <div className="section-title">Throughput (last 60s)</div>
-              <TrendLine values={tpsSeries.length > 1 ? tpsSeries : [0, 0]} color="#a855f7" height={70} />
+              <TrendLine values={tpsSeries.length > 1 ? tpsSeries : [0, 0]} color="#f5b301" height={70} />
             </div>
           </div>
         </div>

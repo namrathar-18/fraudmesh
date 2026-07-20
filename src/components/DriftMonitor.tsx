@@ -33,14 +33,14 @@ export function DriftMonitor({ drift }: { drift: DriftPoint[] }) {
       ctx.fillText(v.toFixed(1), 4, yy + 3)
     }
     // 0.2 threshold
-    ctx.strokeStyle = 'rgba(251,191,36,0.7)'; ctx.setLineDash([5, 4])
+    ctx.strokeStyle = 'rgba(245,150,10,0.7)'; ctx.setLineDash([5, 4])
     ctx.beginPath(); ctx.moveTo(pad.l, y(0.2)); ctx.lineTo(w - pad.r, y(0.2)); ctx.stroke()
     ctx.setLineDash([])
 
     if (drift.length > 1) {
       ctx.beginPath()
       drift.forEach((d, i) => (i ? ctx.lineTo(x(i), y(d.psi)) : ctx.moveTo(x(i), y(d.psi))))
-      ctx.strokeStyle = alerting ? '#fbbf24' : '#ec4899'
+      ctx.strokeStyle = alerting ? '#f5960a' : '#ff8a3d'
       ctx.lineWidth = 1.8; ctx.stroke()
     }
   }, [drift, alerting])

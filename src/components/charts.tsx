@@ -2,7 +2,7 @@
 
 export function TrendLine({
   values,
-  color = '#a855f7',
+  color = '#f5b301',
   height = 60,
   fill = true,
 }: {
@@ -101,7 +101,7 @@ export function Donut({ segments, size = 132 }: { segments: { label: string; val
   )
 }
 
-export function Gauge({ value, max = 1, label, color = '#34d399' }: { value: number; max?: number; label: string; color?: string }) {
+export function Gauge({ value, max = 1, label, color = '#21c07a' }: { value: number; max?: number; label: string; color?: string }) {
   const pct = Math.min(1, value / max)
   return (
     <div>
