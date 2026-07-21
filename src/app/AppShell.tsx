@@ -4,7 +4,15 @@ import { useAuth } from '../auth/AuthContext'
 import { ROLE_LABELS } from '../auth/auth'
 import { navForRole, NAV } from './nav'
 import { usePipelineState } from '../state/PipelineContext'
+import { useNotifications } from '../state/useNotifications'
 import { Shield, Bell, Search, LogOut, Play, Pause, Zap, Reset, Menu, Close } from '../components/icons'
+
+function timeAgo(ts: number): string {
+  const s = Math.max(0, Math.floor((Date.now() - ts) / 1000))
+  if (s < 60) return `${s}s ago`
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`
+  return `${Math.floor(s / 3600)}h ago`
+}
 
 export function AppShell() {
   const { user, logout } = useAuth()
@@ -23,15 +31,14 @@ export function AppShell() {
 
   const current = NAV.find((n) => n.path === loc.pathname)
 
-  const notifs = useMemo(() => {
-    const list: { kind: string; text: string; tone: 'red' | 'amber' | 'indigo' }[] = []
-    if (state.stats.driftAlert) list.push({ kind: 'Drift', text: 'Concept drift detected on amount distribution', tone: 'amber' })
-    if (state.retrain?.promoted) list.push({ kind: 'MLOps', text: `Challenger ${state.retrain.version} promoted to champion`, tone: 'indigo' })
-    if (state.stats.ringsDetected > 0) list.push({ kind: 'Graph', text: `${state.stats.ringsDetected} active fraud ring(s) under watch`, tone: 'red' })
-    const recentBlock = state.cases.find((c) => c.decision === 'block')
-    if (recentBlock) list.push({ kind: 'Block', text: `₹${recentBlock.txn.amount.toLocaleString('en-IN')} blocked — ${recentBlock.reasons[0]}`, tone: 'red' })
-    return list
-  }, [state.stats.driftAlert, state.retrain, state.stats.ringsDetected, state.cases])
+  const notif = useNotifications(state, user?.role ?? 'analyst')
+
+  const openNotifs = () => {
+    setNotifOpen((v) => {
+      if (!v) notif.markAllRead()
+      return !v
+    })
+  }
 
   if (!user) return null
 
@@ -92,20 +99,33 @@ export function AppShell() {
           <div className="topbar-right">
             <span className="live"><span className="pulse" /> {state.stats.tps} tps</span>
             <div style={{ position: 'relative' }}>
-              <button className="icon-btn" onClick={() => setNotifOpen((v) => !v)}>
+              <button className={`icon-btn${notif.unread > 0 ? ' has-unread' : ''}`} onClick={openNotifs}>
                 <Bell size={17} className="" />
-                {notifs.length > 0 && <span className="notif-dot">{notifs.length}</span>}
+                {notif.unread > 0 && <span className="notif-dot">{notif.unread}</span>}
               </button>
               {notifOpen && (
-                <div className="popover" onMouseLeave={() => setNotifOpen(false)}>
-                  <div className="popover-head">Notifications</div>
-                  {notifs.length === 0 && <div className="empty" style={{ padding: 20 }}>All clear</div>}
-                  {notifs.map((n, i) => (
-                    <div key={i} className="notif">
-                      <span className={`notif-tag ${n.tone}`}>{n.kind}</span>
-                      <span>{n.text}</span>
-                    </div>
-                  ))}
+                <div className="popover popover-wide" onMouseLeave={() => setNotifOpen(false)}>
+                  <div className="popover-head between">
+                    <span>Notifications</span>
+                    {notif.items.length > 0 && (
+                      <button className="link-btn" onClick={notif.clear}>Clear all</button>
+                    )}
+                  </div>
+                  <div className="notif-scroll">
+                    {notif.items.length === 0 && (
+                      <div className="empty" style={{ padding: 26 }}>No alerts yet — the pipeline is running clean.</div>
+                    )}
+                    {notif.items.map((n) => (
+                      <div key={n.id} className="notif">
+                        <span className={`notif-tag ${n.tone}`}>{n.kind}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div>{n.text}</div>
+                          <div className="notif-time">{timeAgo(n.ts)}</div>
+                        </div>
+                        <button className="notif-x" onClick={() => notif.dismiss(n.id)} aria-label="dismiss"><Close size={13} className="" /></button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

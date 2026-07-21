@@ -313,12 +313,23 @@ canvas { display: block; width: 100%; }
 .ticker-clock b { color: var(--accent); }
 
 .popover { position: absolute; top: calc(100% + 10px); right: 0; width: 300px; background: var(--panel); border: 1px solid var(--border-lit); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; z-index: 50; }
-.popover-head { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; }
-.notif { display: flex; gap: 9px; align-items: flex-start; padding: 11px 14px; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border); line-height: 1.4; }
-.notif-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px; flex-shrink: 0; }
+.popover-head { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 700; display: flex; align-items: center; }
+.popover-head.between { justify-content: space-between; }
+.popover-wide { width: 360px; }
+.notif-scroll { max-height: 380px; overflow-y: auto; }
+.notif { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border); line-height: 1.45; }
+.notif:hover { background: rgba(255,255,255,0.02); }
+.notif-tag { font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: var(--radius-sm); flex-shrink: 0; letter-spacing: 0.04em; font-family: var(--mono); }
 .notif-tag.red { background: var(--red-bg); color: var(--red); }
 .notif-tag.amber { background: var(--amber-bg); color: var(--amber); }
-.notif-tag.indigo { background: rgba(245, 179, 1,0.14); color: #f0abfc; }
+.notif-tag.green { background: var(--green-bg); color: var(--green); }
+.notif-tag.gold { background: var(--gold-bg); color: var(--accent); }
+.notif-time { font-size: 10.5px; color: var(--text-faint); margin-top: 4px; font-family: var(--mono); }
+.notif-x { background: none; border: none; color: var(--text-faint); cursor: pointer; padding: 2px; border-radius: 4px; flex-shrink: 0; }
+.notif-x:hover { color: var(--red); background: var(--red-bg); }
+.link-btn { background: none; border: none; color: var(--accent); font-size: 11px; cursor: pointer; font-weight: 600; font-family: var(--sans); }
+.link-btn:hover { text-decoration: underline; }
+.icon-btn.has-unread { color: var(--accent); }
 .menu-item { display: flex; align-items: center; gap: 9px; width: 100%; padding: 11px 14px; background: none; border: none; color: var(--text); font-size: 12.5px; cursor: pointer; font-family: var(--sans); }
 .menu-item:hover { background: var(--bg-2); color: var(--red); }
 
@@ -412,8 +423,15 @@ canvas { display: block; width: 100%; }
 .welcome-hi { font-size: 18px; font-weight: 750; }
 .welcome-role { font-size: 12.5px; color: var(--text-dim); margin-top: 2px; }
 .welcome-focus { text-align: right; max-width: 420px; }
-.wf-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.04em; }
+.wf-title { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); }
 .wf-note { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; line-height: 1.4; }
+
+/* ---- Service health cards (admin) ---- */
+.svc-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; background: var(--bg-2); }
+.svc-top { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.svc-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+.svc-role { font-size: 11px; color: var(--text-faint); margin: 4px 0 8px 15px; }
+.svc-metric { font-size: 12px; color: var(--text-dim); margin-left: 15px; }
 
 /* ============ Responsive grid utilities ============ */
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
